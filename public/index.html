@@ -3,46 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <title>Detonate</title>
-
 <style>
 body {
-    margin: 0;
-    height: 100vh;
-    background: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-    cursor: pointer;
+  margin: 0;
+  height: 100vh;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
-
 .text {
-    color: white;
-    font-size: 28px;
-    font-family: Arial, sans-serif;
-    opacity: 0.6;
+  color: white;
+  font-size: 28px;
+  font-family: Arial;
+}
+.flash {
+  background: red !important;
 }
 </style>
 </head>
+<body>
 
-<body onclick="fakeClick()">
+<div class="text">Нажми один раз для активации</div>
 
-<div class="text">Нажми в любое место</div>
-
-<audio id="boom" src="boom.mp3"></audio>
+<audio id="boom" src="/boom.mp3"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
 const audio = document.getElementById("boom");
 
-function fakeClick() {
-    console.log("Удачи!");
-}
+let armed = false;
 
-socket.on("detonate", () => {
+socket.on("connect", () => {
+  console.log("Socket connected");
+});
+
+document.body.addEventListener("click", async () => {
+  if (armed) return;
+
+  try {
+    await audio.play();
+    audio.pause();
     audio.currentTime = 0;
-    audio.play().catch(() => {});
+    armed = true;
+    document.querySelector(".text").innerText = "Готово";
+    console.log("ARMED");
+  } catch (e) {
+    console.log("ARM ERROR", e);
+  }
+});
+
+socket.on("detonate", async () => {
+  console.log("DETONATE RECEIVED");
+
+  if (!armed) {
+    console.log("NOT ARMED");
+    return;
+  }
+
+  document.body.classList.add("flash");
+  setTimeout(() => {
+    document.body.classList.remove("flash");
+  }, 300);
+
+  try {
+    audio.currentTime = 0;
+    await audio.play();
+  } catch (e) {
+    console.log("PLAY ERROR", e);
+  }
 });
 </script>
 

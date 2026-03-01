@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const TelegramBot = require("node-telegram-bot-api");
 const path = require("path");
 
-const TOKEN = "8794964058:AAFXWp5rDW5_tw44t1AWZjy79n8PTsQYxKw";
+const TOKEN = process.env.TELEGRAM_TOKEN; // токен в Railway Variables
 
 const app = express();
 const server = http.createServer(app);
@@ -25,15 +25,18 @@ bot.onText(/\/start/, (msg) => {
 
 bot.on("message", (msg) => {
   if (msg.text === "Детонировать") {
+    console.log("DETONATE SENT");
     io.emit("detonate");
     bot.sendMessage(msg.chat.id, "Сигнал отправлен");
   }
 });
 
-io.on("connection", () => {
-  console.log("Сайт подключен");
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
 });
 
-server.listen(3000, () => {
-  console.log("Сервер запущен: http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
 });
