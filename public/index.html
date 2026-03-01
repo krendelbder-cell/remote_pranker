@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Detonate</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+}
+
+.text {
+    color: white;
+    font-size: 28px;
+    font-family: Arial, sans-serif;
+    opacity: 0.6;
+}
+</style>
+</head>
+
+<body onclick="fakeClick()">
+
+<div class="text">Нажми в любое место</div>
+
+<audio id="boom" src="boom.mp3"></audio>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+const audio = document.getElementById("boom");
+
+function fakeClick() {
+    console.log("Удачи!");
+}
+
+socket.on("detonate", () => {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+});
+</script>
+
+</body>
+</html>
